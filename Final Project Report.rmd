@@ -1,0 +1,199 @@
+---
+title: "Trends in Major League Baseball"
+author: "Marali Benitez"
+date: "Fall 2023"
+output: html_document
+---
+
+## Introduction
+
+Baseball has long been considered America's favorite pastime, with it being America's oldest professional sport. Here in Houston, the impact of the Astros on the community and the culture of Houston has been clearly evident, especially within the past ten years. Today, we will be looking at some general trends in Major League Baseball and trends specific to the Houston Astros.
+
+
+## Packages Used
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message=FALSE, echo = FALSE)
+```
+
+```{r, echo=TRUE}
+##Load in dplyr for data manipulation
+library(dplyr)
+##Load in tidyverse to tidy up dataa
+library(tidyverse)
+##Load in ggplot2 for data visualization
+library(ggplot2)
+```
+
+## The MLB dataset
+I got this dataset from the R Library for Sean Lahman's Baseball Database. I am going to start by reading in the dataset from a CSV file and save it to a variable that I will name mlb.
+
+Link to dataset: [Lahman's Baseball Database Teams Data](https://vincentarelbundock.github.io/Rdatasets/csv/openintro/mlb_teams.csv)
+
+```{r, echo = TRUE}
+mlb = read.csv("mlb_teams.csv")
+```
+
+## Variables and Observations
+
+The dataset itself has 42 variables and over 2000 observations, spanning from 1876 to 2020.  For this data exploration, we will be looking mainly at data from the years  2000-2019, and we will filter down the data set down to only the variables that we will be working with. I will also be reording the order of the columns of the data so that it may be easier to read.
+
+```{r, echo=FALSE}
+##filter data to years 1995-2019, and select variables
+mlb_data = mlb %>% filter(year>1999 & year<2020) %>% 
+  select(year, wins, losses, world_series_winner, team_name, home_attendance, league_id)
+
+##rearrange order of the columns of the dataset
+mlb_data = mlb_data[, c("year", "team_name", "league_id", "world_series_winner", "wins", "losses", "home_attendance")]
+```
+
+```{r, echo=TRUE}
+glimpse(mlb_data)
+```
+
+## Key Terms and Variables
+
+The variables that we will be focusing on are:
+
+- year 
+- team_Name 
+- league_id: Whether the team is divided into the American League or the National League
+- world_series_winner: Whether the team won the World Series or Not (marked as "Y" or "N")
+- wins
+- losses
+- home_attendance: Total home attendance for the team for the season
+- runs_scored
+- sacrifice_flies: when a batter hits a fly-ball out that "sacrifices" themselves to bring in a baserunner to score a run
+
+## American League vs. National League
+
+Ever since the American League and the National League merged to form the MLB in 1903, there has been a debate as to which league has better quality teams. The first thing we are going to look at is the overall records for teams in each league from the years 2000-2019.
+
+```{r, echo=FALSE}
+ ALvNL = mlb_data %>% group_by(league_id) %>% 
+  ggplot(aes(x = league_id, y = wins, fill=league_id)) +
+  facet_wrap(~year) +
+  geom_bar(stat='identity') +
+  ggtitle("National League vs. American League Records 2000-2019")
+
+ALvNL+(scale_fill_manual(values=c("#F4871E", "#002D62")))
+```
+
+This graph shows the wins by each league's teams by year. According to the graph, the teams in the National League had better overall records 15 times out of the 20 years that we are looking at. 
+
+## Teams With the Best Records
+
+Another thing I would like to look at is the 5 teams with the best record in the range that we've selected. To do that, we will be arranging the data by their games won. 
+
+```{r, echo=FALSE}
+##arrange teams by win rate
+mlb_data %>% arrange(-wins) %>% 
+  head(5)
+
+```
+
+
+As we can see, the team with the best record from 2000-2019 was the 2001 Seattle Mariners. However, we can also see that they were not world series winners as one would expect. Next, we will be taking a look at the world series winners and their win rates. 
+
+
+## World Series Winners
+
+In the MLB, each team is divided into either the American League or the National League, and again divided into three divisions (East, West, Central) within each league. After the regular season ends, 12 teams move on to the playoffs (the division winners, along with 3 teams in each league with the best records that didn't win their division). They then play in a bracket style tournament within their own leagues, where the National League Champions and the American League Champions then go on the play against each other in what we know as the World Series. 
+
+As we previously saw, the teams with the best records don't always win the World Series. We are now going to be taking a look at boxplots that display the range of wins of teams for each year, where the red dot signifies the number of wins during the season for the world series winner. 
+```{r, echo=FALSE}
+ ws_wins_bp = mlb_data %>% 
+  ggplot() + 
+  geom_boxplot(aes(x = wins, y = year, group = year)) +
+  geom_point(data = mlb_data %>% filter(world_series_winner == "Y"), aes(x = wins, y = year),color = "red") +
+  ggtitle("World Series Winners and Their Win Records (2000-2019)")
+
+ws_wins_bp
+```
+
+```{r, echo=FALSE}
+##how to make a bargraph that compares the WS winners with the best records vs the WS winners who didn't have the best records (DATA FROM ALL WS)
+mlb = mlb %>% group_by(year) %>%  mutate(best_record = max(wins)==wins) 
+
+mlb %>% filter(world_series_winner == "Y") %>% select(team_name, year, best_record) %>% ungroup() %>%  count(best_record)
+```
+
+As shown by this table, over 110 iterations of the world series, teams with the best records have only won the world series 55 times. 
+
+## Team Records and Home Attendance
+
+A variable that I found really interesting in this data set was the home attendance, which is the total attendance for each team at their home attendance over the season. One of the relationships that I wanted to explore was the records of the teams and their home attendance.
+
+```{r, echo=FALSE}
+mlb_data %>% ggplot(aes(x=wins, y= home_attendance)) +
+  geom_jitter() + geom_smooth(method = "lm") +
+  ggtitle("Team Wins and Total Home Attendance (2000-2019)")## attendance vs. wins from 2000-2019
+
+##The code below was used to calculate the formula of the regression line
+##model <- lm(home_attendance ~ wins, data = mlb_data)
+##summary(model)
+```
+
+Because of what seems to be a slight positive relationship between the variables, I decided to add a regression line to the graph, which tries to predict the value of y for any given value of x. The formula for the regression line comes out to be y = 28,379X + 138,601. Although correlation doesn't mean causation, by using this regression line one would expect that for every win that a team achieves, their home attendance would increase by 28,379.
+
+## Astros Specific Data
+
+Now I'd like to take a look at data specific to the Astros. 
+
+```{r, echo=FALSE}
+##Graph that plots the home attendance of the Astros since 1965
+
+Astros_data = mlb %>% filter(team_name == "Houston Astros", year<2020)
+
+Astro_attendance = Astros_data %>% ggplot(aes(x=year, y=home_attendance)) +
+  geom_line(color = "#F4871E")+
+  ggtitle("Houston Astros Home Attendance from 1965-2019")
+
+Astro_attendance
+
+##The code below was used to find the years with the max/min home attendance
+##Astros_data %>% summarize(min_attendance = min(home_attendance))
+##Astros_data %>% filter(home_attendance==858002)
+##Astros_data %>% summarize(max_attendance = max(home_attendance))
+##Astros_data %>% filter(home_attendance==3087872)
+```
+
+The graph above shows the home attendance for the Astros from 1965-2019. The values range from the year with the lowest attendance of 858,002 people in 1975 to the year with the highest attendance of 3,087,872 people in 2004.
+
+
+## Astros Record from 1965-2019
+
+```{r, echo=FALSE}
+## Graph that plots the Astros record since 1965
+Astro_wins = Astros_data %>% ggplot(aes(x=year, y=wins)) +
+  geom_line(color =  "#F4871E") +
+  ggtitle("Houston Astros Games Won from 1965-2019")
+
+Astro_wins
+
+##The code below was used to find the years with the best/worst records
+##Astros_data %>% summarize(worst = min(wins))
+##Astros_data %>% filter(wins==51)
+##Astros_data %>% summarize(best = max(wins))
+##Astros_data %>% filter(wins==107)
+```
+
+The graph above shows the games won by the Astros throughout each season. The year that they had the worst record was in 2013, where they only won 51 of the 162 games played. Something to note is that the Astros actually had the worst record of any team in the MLB in 2013. The year that they had their best record was actually only 6 years later in 2019, where they won 107 games of the 162 games played. They had the best record of any MLB team that year, but unfortunately fell short of a world series title and lost the series to the Washington Nationals.
+
+## Sacrifice Flies and Runs Scored
+
+An interesting relationship I found was the relationship between
+
+```{r}
+Astros_data %>% ggplot(aes(x=sacrifice_flies, y=runs_scored)) +
+  geom_jitter(col = "#002D62")
+
+##cor.test(Astros_data$sacrifice_flies, Astros_data$runs_scored)
+```
+
+
+## Summary
+
+
+
+
