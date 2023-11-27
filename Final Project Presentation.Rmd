@@ -34,9 +34,15 @@ Link to dataset: [Lahman's Baseball Database Teams Data](https://vincentarelbund
 mlb = read.csv("mlb_teams.csv")
 ```
 
-## Variables and Observations
+## The Unfilitered Data
 
-The dataset itself has 42 variables and over 2000 observations, spanning from 1876 to 2020.  For this data exploration, we will be looking mainly at data from the years  2000-2019, and we will filter down the data set down to only the variables that we will be working with. I will also be reording the order of the columns of the data so that it may be easier to read.
+```{r, echo=FALSE}
+glimpse(mlb)
+```
+
+The dataset itself has 42 variables and over 2000 observations, spanning from 1876 to 2020.  For this data exploration, we will be looking mainly at data from the years 2000-2019, and we will filter down the data set down to only the variables that we will be working with. I will also be reording the order of the columns of the data so that it may be easier to read.
+
+## Filtered Data
 
 ```{r, echo=FALSE}
 ##filter data to years 1995-2019, and select variables
