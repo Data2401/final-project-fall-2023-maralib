@@ -137,7 +137,7 @@ mlb_data %>% ggplot(aes(x=wins, y= home_attendance)) +
 ##summary(model)
 ```
 
-Because of what seems to be a slight positive relationship between the variables, I decided to calculate the correlation of the relationship and add a regression line to the graph, which tries to predict the value of y for any given value of x. The correlation of the relationship is .485, which means the data has a positive moderate relationship. The formula for the regression line comes out to be y = 28,379X + 138,601. Although correlation doesn't mean causation, by using this regression line one would expect that for every win that a team achieves, their home attendance would increase by 28,379.
+Because of what seems to be a slight positive relationship between the variables, I decided to calculate the correlation of the relationship and add a regression line to the graph, which tries to predict the value of y for any given value of x. The correlation of the relationship is .485, which means the data has a moderate positive relationship. The formula for the regression line comes out to be y = 28,379X + 138,601. Although correlation doesn't mean causation, by using this regression line one would expect that for every win that a team achieves, their home attendance would increase by 28,379.
 
 ## Astros Specific Data
 
@@ -185,15 +185,15 @@ The graph above shows the games won by the Astros throughout each season. The ye
 
 ## Sacrifice Flies and Runs Scored
 
-An interesting relationship I found was the relationship between the strikeouts by batters and the earned run average. The formula for the regression line below is y=0.0013x+2.52. Although the earned run average doesn't go up by much for each batter that is struck out, something of note is that the correlation between these two variables is slightly higher than the relationship between the wins and the total home attendance that we explored earlier. The correlation between these two variables is .522, which signifies a positive moderate relationship. 
+An interesting relationship I found was the relationship between the strikeouts by batters and the earned run average. The formula for the regression line below is y=0.0013x+2.52. Although the earned run average doesn't go up by much for each batter that is struck out, something of note is that the correlation between these two variables is slightly higher than the relationship between the wins and the total home attendance that we explored earlier. The correlation between these two variables is .522, which signifies a moderate positive relationship. 
 
 ```{r}
 Astros_data %>% ggplot(aes(x=strikeouts_by_batters, y=earned_run_average)) +
   geom_jitter(col = "#002D62") +
   geom_smooth(method = "lm")
 
-##this code was used to find if there was a correlation between the strikours by batters and the earned run average
-cor.test(Astros_data$strikeouts_by_batters, Astros_data$earned_run_average)
+##this code was used to find if there was a correlation between the strikouts by batters and the earned run average
+##cor.test(Astros_data$strikeouts_by_batters, Astros_data$earned_run_average)
 
 ##The code below was used to calculate the formula of the regression line
 ##m <- lm(earned_run_average ~ strikeouts_by_batters, data = Astros_data)
@@ -203,6 +203,9 @@ cor.test(Astros_data$strikeouts_by_batters, Astros_data$earned_run_average)
 
 ## Summary
 
+In baseball, there are a lot of factors to consider when it comes to the success or failure of a team. Despite teams wanting to be at the top of the league in terms of their records, that doesn't always mean that they will win the World Series. The records that those teams may try to achieve may also help them predict what their home attendance may be for the season. 
+
+Although we explored many interesting relationships, there is also a large factor that may affect all the variables we saw that we didn't explore; revenue. The money that a team brings in can largely affect what players can be bought or traded, or the quality of the training facilities that each team has, which in turn can help determine a teams success. 
 
 
 
