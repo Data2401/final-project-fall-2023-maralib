@@ -34,9 +34,15 @@ Link to dataset: [Lahman's Baseball Database Teams Data](https://vincentarelbund
 mlb = read.csv("mlb_teams.csv")
 ```
 
-## Variables and Observations
+## The Unfilitered Data
 
-The dataset itself has 42 variables and over 2000 observations, spanning from 1876 to 2020.  For this data exploration, we will be looking mainly at data from the years  2000-2019, and we will filter down the data set down to only the variables that we will be working with. I will also be reording the order of the columns of the data so that it may be easier to read.
+```{r, echo=FALSE}
+glimpse(mlb)
+```
+
+The dataset itself has 42 variables and over 2000 observations, spanning from 1876 to 2020.  For this data exploration, we will be looking mainly at data from the years 2000-2019, and we will filter down the data set down to only the variables that we will be working with. I will also be reording the order of the columns of the data so that it may be easier to read.
+
+## Filtered Data
 
 ```{r, echo=FALSE}
 ##filter data to years 1995-2019, and select variables
@@ -62,8 +68,8 @@ The variables that we will be focusing on are:
 - wins
 - losses
 - home_attendance: Total home attendance for the team for the season
-- runs_scored
-- sacrifice_flies: when a batter hits a fly-ball out that "sacrifices" themselves to bring in a baserunner to score a run
+- strikeouts_by_batters
+- earned_run_average: Average runs scored in each game
 
 ## American League vs. National League
 
@@ -129,12 +135,15 @@ mlb_data %>% ggplot(aes(x=wins, y= home_attendance)) +
   geom_jitter() + geom_smooth(method = "lm") +
   ggtitle("Team Wins and Total Home Attendance (2000-2019)")## attendance vs. wins from 2000-2019
 
+##The code below was used to calculate the correlation
+cor.test(mlb_data$wins, mlb_data$home_attendance)
+
 ##The code below was used to calculate the formula of the regression line
-##model <- lm(home_attendance ~ wins, data = mlb_data)
-##summary(model)
+model <- lm(home_attendance ~ wins, data = mlb_data)
+summary(model)
 ```
 
-Because of what seems to be a slight positive relationship between the variables, I decided to add a regression line to the graph, which tries to predict the value of y for any given value of x. The formula for the regression line comes out to be y = 28,379X + 138,601. Although correlation doesn't mean causation, by using this regression line one would expect that for every win that a team achieves, their home attendance would increase by 28,379.
+Because of what seems to be a slight positive relationship between the variables, I decided to calculate the correlation of the relationship and add a regression line to the graph, which tries to predict the value of y for any given value of x. The correlation of the relationship is .485, which means the data has a moderate positive relationship. The formula for the regression line comes out to be y = 28,379X + 138,601. Although correlation doesn't mean causation, by using this regression line one would expect that for every win that a team achieves, their home attendance would increase by 28,379.
 
 ## Astros Specific Data
 
@@ -182,17 +191,27 @@ The graph above shows the games won by the Astros throughout each season. The ye
 
 ## Sacrifice Flies and Runs Scored
 
-An interesting relationship I found was the relationship between
+An interesting relationship I found was the relationship between the strikeouts by batters and the earned run average. The formula for the regression line below is y=0.0013x+2.52. Although the earned run average doesn't go up by much for each batter that is struck out, something of note is that the correlation between these two variables is slightly higher than the relationship between the wins and the total home attendance that we explored earlier. The correlation between these two variables is .522, which signifies a moderate positive relationship. 
 
 ```{r}
-Astros_data %>% ggplot(aes(x=sacrifice_flies, y=runs_scored)) +
-  geom_jitter(col = "#002D62")
+Astros_data %>% ggplot(aes(x=strikeouts_by_batters, y=earned_run_average)) +
+  geom_jitter(col = "#002D62") +
+  geom_smooth(method = "lm")
 
-##cor.test(Astros_data$sacrifice_flies, Astros_data$runs_scored)
+##this code was used to find if there was a correlation between the strikouts by batters and the earned run average
+cor.test(Astros_data$strikeouts_by_batters, Astros_data$earned_run_average)
+
+##The code below was used to calculate the formula of the regression line
+m <- lm(earned_run_average ~ strikeouts_by_batters, data = Astros_data)
+summary(m)
 ```
 
 
 ## Summary
+
+In baseball, there are a lot of factors to consider when it comes to the success or failure of a team. Despite teams wanting to be at the top of the league in terms of their records, that doesn't always mean that they will win the World Series. The records that those teams may try to achieve may also help them predict what their home attendance may be for the season. 
+
+Although we explored many interesting relationships, there is also a large factor that may affect all the variables we saw that we didn't explore; revenue. The money that a team brings in can largely affect what players can be bought or traded, or the quality of the training facilities that each team has, which in turn can help determine a teams success. 
 
 
 
